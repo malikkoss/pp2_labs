@@ -1,0 +1,105 @@
+import pygame
+from datetime import datetime
+
+pygame.init()
+screen = pygame.display.set_mode((829, 836))
+done = False
+bg_image = pygame.image.load('labs/lab7/imgs/MicrosoftTeams-image (2).png')
+sec_img = pygame.image.load('labs/lab7/imgs/MicrosoftTeams-image (1).png')
+min_img = pygame.image.load('labs/lab7/imgs/MicrosoftTeams-image.png')
+rect = bg_image.get_rect(center=(415, 418))
+
+while not done:
+    screen.blit(bg_image, (0, 0))
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            done = True
+
+    time = datetime.now().time()
+
+    sec_angle = -(time.second * 6)
+    nsec_img = pygame.transform.rotate(sec_img, sec_angle)
+    sec_rect = nsec_img.get_rect(center=rect.center)
+    screen.blit(nsec_img, sec_rect.topleft)
+
+    min_angle = -(time.minute * 6)
+    nmin_img = pygame.transform.rotate(min_img, min_angle)
+    min_rect = nmin_img.get_rect(center=rect.center)
+    screen.blit(nmin_img, min_rect.topleft)
+
+    pygame.display.flip()
+
+import pygame
+
+pygame.mixer.init()
+pygame.init()
+screen = pygame.display.set_mode((960, 600))
+done = False
+songs = ['labs/lab7/music/Playboi Carti - H00DBYAIR (Official Music Video) (256  kbps).mp3',
+         'labs/lab7/music/BACKR00MS FT TRAVIS SCOTT SEXISDEATH INDIANA420BITCH (256  kbps).mp3',
+         'labs/lab7/music/PLAYBOI CARTI - UR THE MOON (MUSIC VIDEO) (256  kbps).mp3',
+         'labs/lab7/music/Yung_Lean_x_Bladee_-_Hennessy_and_Sailor_Moon_55724191.mp3']
+pygame.mixer.music.load(songs[0])
+pygame.mixer.music.play()
+i = 0
+a = True
+background_image = pygame.image.load("labs/lab7/music/86c87d3748b1b8ee27db7c60e44ddae6.jpg")
+background_rect = background_image.get_rect()
+
+while not done:
+    if i == 3:
+        background_image = pygame.image.load('labs/lab7/music/d4e27433-f6a7-454a-a5c7-66dd5ad2baf9.jpg')
+        background_rect = background_image.get_rect()
+        screen.blit(background_image, background_rect)
+    else:
+        background_image = pygame.image.load("labs/lab7/music/86c87d3748b1b8ee27db7c60e44ddae6.jpg")
+        background_rect = background_image.get_rect()
+        screen.blit(background_image, background_rect)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            done = True
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RIGHT:
+                i = (i + 1) % len(songs)
+                pygame.mixer.music.load(songs[i])
+                pygame.mixer.music.play()
+            elif event.key == pygame.K_LEFT:
+                i = (i - 1) % len(songs)
+                pygame.mixer.music.load(songs[i])
+                pygame.mixer.music.play()
+            elif event.key == pygame.K_SPACE:
+                if a:
+                    pygame.mixer.music.stop()
+                    a = False
+                else:
+                    pygame.mixer.music.play()
+                    a = True
+
+    pygame.display.flip()
+
+
+import pygame
+
+pygame.init()
+screen = pygame.display.set_mode((800, 600))
+done = False
+x = 400
+y = 300
+clock = pygame.time.Clock()
+
+while not done:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            done = True
+
+    pressed = pygame.key.get_pressed()
+    if pressed[pygame.K_UP] and y-25>0: y -= 20
+    if pressed[pygame.K_DOWN] and y+25<600: y += 20
+    if pressed[pygame.K_LEFT] and x-25>0: x -= 20
+    if pressed[pygame.K_RIGHT] and x+25<800: x += 20
+    screen.fill((255, 255, 255))
+    pygame.draw.circle(screen, (255, 0, 0), (x, y), 25)
+
+    pygame.display.flip()
+    clock.tick(60)
+pygame.quit()
