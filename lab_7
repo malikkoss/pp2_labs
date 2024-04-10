@@ -1,0 +1,525 @@
+import pygame
+pygame.init()
+black,white,yellow,red,blue,green=(0,0,0),(255,255,255),(255,255,0),(255,0,0),(0,0,255),(0,255,0)
+screen = pygame.display.set_mode((500,500))
+clock = pygame.time.Clock()
+game_over = False
+prev, cur = None, None
+mode='pen'
+color=black
+thickness=5
+screen.fill(white)
+
+#start it s a previous pos
+#end it the last button up position- event.pos
+
+def drawRectangle(screen, start, end, thickness, color):
+    x1,y1= start[0],start[1]
+    x2,y2 = end[0],end[1]
+    width = abs(x1-x2)
+    height = abs(y1-y2)
+    pygame.draw.rect(screen, color, (x1, y1, width, height), thickness)
+def drawSquare(screen, start, end, thickness, color):
+    x1,y1= start[0],start[1]
+    x2,y2= end[0],end[1]
+    width = abs(x1-x2)
+    height =width 
+    pygame.draw.rect(screen, color, (x1, y1, width, height), thickness)
+#for the next figures it was helpful to first draw an imaginary square or triangle
+#and then we could see how to caclulate coordinates
+def drawRightTriangle(screen,start,end,thickness,color):
+    x1,y1= start[0],start[1]
+    x2,y2 = end[0],end[1]
+    height=y2-y1
+#pygame.draw.line(surface, color, (startX, startY), (endX, endY), width)
+    startx,starty=x1,y1
+    endx,endy=x1,y1+height #these two lines are for the opposite side
+    pygame.draw.line(screen,color,(startx,starty),(endx,endy),thickness)
+    #the start of the adjacent side is the end of the opposite side
+    #the end of the adjacent side is x2,y2
+    pygame.draw.line(screen,color,(endx,endy),(x2,y2),thickness)
+    pygame.draw.line(screen,color,(x1,y1),(x2,y2),thickness)#hypotenuse
+def drawEqualTriangle(screen,start,end,thickness,color):
+    x1,y1= start[0],start[1]
+    x2,y2 = end[0],end[1]
+    height=y2-y1
+    width=x2-x1
+    pygame.draw.line(screen,color,(x1,y1+height),(x2,y2),thickness)
+    pygame.draw.line(screen,color,(x1+width/2,y1),(x2,y2),thickness)
+    pygame.draw.line(screen,color,(x1,y1+height),(x1+width/2,y1),thickness)
+def drawRhombus(screen,start,end,thickness,color):
+    x1,y1= start[0],start[1]
+    x2,y2 = end[0],end[1]
+    height=y2-y1
+    width=x2-x1
+    pygame.draw.line(screen,color,(x1,y1+height/2),(x1+width/2,y1),thickness)
+    pygame.draw.line(screen,color,(x1+width/2,y1),(x2,y1+height/2),thickness)
+    pygame.draw.line(screen,color,(x2,y1+height/2),(x1+width/2,y2),thickness)
+    pygame.draw.line(screen,color,(x1+width/2,y2),(x1,y1+height/2),thickness)
+def drawCircle(screen, start, end, thickness, color):
+    x1,y1= start[0],start[1]
+    x2,y2 = end[0],end[1]
+    x = (x1 + x2) / 2
+    y = (y1 + y2) / 2 
+    #x and y here are the center of the circle
+    radius = abs(x1 - x2) / 2
+    pygame.draw.circle(screen, pygame.Color(color), (x, y), radius, thickness)
+while not game_over:
+  for event in pygame.event.get():
+    if event.type == pygame.QUIT:
+      game_over = True
+    if event.type == pygame.KEYDOWN:
+        if event.type == pygame.QUIT:
+            exit()
+        if event.type== pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                mode='rectangle'
+            if event.key == pygame.K_2:
+                mode='circle'
+            if event.key == pygame.K_3:
+                mode='square'
+            if event.key==pygame.K_4:
+                mode='RightTriangle'
+            if event.key==pygame.K_5:
+                mode='EqualTriangle'
+            if event.key==pygame.K_6:
+                mode='Rhombus'
+            if event.key == pygame.K_p:
+                mode='pen'
+            if event.key == pygame.K_e: #white is used for eraser
+                mode='pen'
+                color=white
+            if event.key == pygame.K_g:
+                color =green
+            if event.key == pygame.K_b:
+                color =black
+            if event.key == pygame.K_r:
+                color =red
+    if mode=='pen':       
+      if event.type == pygame.MOUSEBUTTONDOWN:
+        prev = pygame.mouse.get_pos()
+      if event.type == pygame.MOUSEMOTION:
+        cur = pygame.mouse.get_pos()
+        if prev:
+          pygame.draw.line(screen, color, prev, cur, thickness)
+          prev = cur
+      if event.type == pygame.MOUSEBUTTONUP:
+        prev = None
+    else:
+        if event.type==pygame.MOUSEBUTTONDOWN:
+            draw=True
+            previousPos=event.pos
+        if event.type==pygame.MOUSEBUTTONUP:
+            if mode=='rectangle':
+                drawRectangle(screen,previousPos,event.pos,thickness,color)
+            elif mode=='square':
+                drawSquare(screen,previousPos,event.pos,thickness,color)
+            elif mode=='circle':
+                drawCircle(screen,previousPos,event.pos,thickness,color)
+            elif mode=='RightTriangle':
+                drawRightTriangle(screen,previousPos,event.pos,thickness,color)
+            elif mode=='EqualTriangle':
+                drawEqualTriangle(screen,previousPos,event.pos,thickness,color)
+            elif mode=='Rhombus':
+                drawRhombus(screen,previousPos,event.pos,thickness,color)
+            else:
+                draw=False
+        if event.type == pygame.MOUSEBUTTONUP:
+                    previousPos = None
+  pygame.display.flip()
+  clock.tick(60) # 60 is the normal fps
+pygame.quit()
+#pygame.mouse.get_pos() returns a Tuple and event.pos is a Tuple. Both give you the position of the mouse pointer as a tuple with 2 components
+
+
+import random, sys,pygame
+pygame.init()
+FPS = 60
+SCREEN_WIDTH = 400
+SCREEN_HEIGHT = 600
+STEP = 5
+ENEMY_STEP = 10
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+SCORE  = 0
+SURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT)) # установление экрана
+pygame.display.set_caption("Aruka's racer game") #название экрана
+clock = pygame.time.Clock()
+global NUM_OF_COINS
+NUM_OF_COINS = 0
+score_font = pygame.font.SysFont("Verdana", 20) #шрифт для счетчиков
+bg = pygame.image.load("AnimatedStreet.png") #background
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("Enemy.png")
+        self.rect = self.image.get_rect()
+        self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0) 
+        #положение энеми по иксу задается рандомно учитывая ширину машинки
+    def update(self):
+        global SCORE,ENEMY_STEP
+        self.rect.move_ip(0, ENEMY_STEP)
+        if(self.rect.bottom > SCREEN_HEIGHT):
+            SCORE += 1 # если энеми проехал всю высоту экрана, это плюс к скору
+            self.top = 0
+            self.rect.center = (random.randint(30, 350), 0)
+            #setting the new position after enemy passes the player
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("Player.png")
+        self.rect = self.image.get_rect()
+        self.rect.center = (160, 520)
+        #the player always spawns on one position
+
+    def update(self):
+        pressed_keys = pygame.key.get_pressed()
+        if self.rect.left > 0:
+            if pressed_keys[pygame.K_LEFT]:
+                self.rect.move_ip(-STEP, 0)
+
+        if self.rect.right < SCREEN_WIDTH:
+            if pressed_keys[pygame.K_RIGHT]:
+                self.rect.move_ip(STEP, 0)
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
+
+class Coin(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image=pygame.image.load('goldcoin.png')
+        self.image=pygame.transform.scale(self.image,(25,25))
+        #задаем определенный размер картинке монетки
+        self.rect=self.image.get_rect()
+        self.rect.center=(random.randint(40,SCREEN_WIDTH-40),0)
+    def update(self):
+        self.rect.move_ip(0,5)
+        if(self.rect.bottom>SCREEN_HEIGHT):
+            self.top=0
+            self.rect.center=(random.randint(30,350),0)
+    def spawn(self):
+        self.rect.center=(random.randint(30,350),0)
+    def draw(self,surface):
+        surface.blit(self.image,self.rect)
+
+class BIGCoin(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image=pygame.image.load('goldcoin.png')
+        self.image=pygame.transform.scale(self.image,(45,45))
+        self.rect=self.image.get_rect()
+        self.rect.center=(random.randint(45,SCREEN_WIDTH-45),0)
+    def update(self):
+        self.rect.move_ip(0,5)
+        if(self.rect.bottom>SCREEN_HEIGHT):
+            self.top=0
+            self.rect.center=(random.randint(30,350),0)
+    def spawn(self):
+        self.rect.center=(random.randint(30,350),0)
+    def draw(self,surface):
+        surface.blit(self.image,self.rect)
+
+class Treasure(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image=pygame.image.load('treasure.png')
+        self.image=pygame.transform.scale(self.image,(50,50))
+        self.rect=self.image.get_rect()
+        self.rect.center=(random.randint(50,SCREEN_WIDTH-50),0)
+    def update(self):
+        self.rect.move_ip(0,5)
+        if(self.rect.bottom>SCREEN_HEIGHT):
+            self.top=0
+            self.rect.center=(random.randint(30,350),0)
+    def spawn(self):
+        self.rect.center=(random.randint(30,350),0)
+    def draw(self,surface):
+        surface.blit(self.image,self.rect)
+P1 = Player()
+E1 = Enemy()
+C1=Coin()
+C2=BIGCoin()
+T1=Treasure()
+
+enemies = pygame.sprite.Group()
+enemies.add(E1)
+#adding coins to the sprite group
+coins=pygame.sprite.Group()
+coins.add(C1)
+Bcoins=pygame.sprite.Group()
+Bcoins.add(C2)
+Treas=pygame.sprite.Group()
+Treas.add(T1)
+
+k = 1
+#Каждые 15 новых собранных коинов
+#скорость врага увеличивается на 1 единицу
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    P1.update()
+    E1.update()
+    C1.update()
+    C2.update()
+    T1.update()
+    if pygame.sprite.spritecollideany(P1, coins):
+       NUM_OF_COINS += 1
+       if NUM_OF_COINS >= k * 15:
+           ENEMY_STEP += 1
+           k += 1
+       C1.spawn() #как только игрок тронул монету, нужно создать новую
+    if pygame.sprite.spritecollideany(P1, Bcoins):
+       NUM_OF_COINS += 5
+       if NUM_OF_COINS >= k * 15:
+           ENEMY_STEP += 1
+           k += 1
+       C2.spawn()
+    if pygame.sprite.spritecollideany(P1, Treas):
+       NUM_OF_COINS += 10
+       if NUM_OF_COINS >= k * 15:
+           ENEMY_STEP += 1
+           k += 1
+       T1.spawn() 
+    if pygame.sprite.spritecollideany(P1, enemies):
+        pygame.quit()
+        sys.exit()
+    SURF.blit(bg, (0, 0))
+    score_img = score_font.render('Number of passing cars: '+str(SCORE), True, BLACK)
+    coin_score_img=score_font.render('Number of collected coins: '+str(NUM_OF_COINS),True,BLACK)
+    speed_img=score_font.render('Enemy speed: '+ str(ENEMY_STEP),True,BLACK)
+    SURF.blit(score_img, (10, 10)) #позиция счетчика машин
+    SURF.blit(coin_score_img,(30,30)) #позиция счетчика монет
+    SURF.blit(speed_img,(50,50))
+    E1.draw(SURF)
+    P1.draw(SURF)
+    C1.draw(SURF)
+    C2.draw(SURF)
+    T1.draw(SURF)
+    pygame.display.update()
+    clock.tick(FPS)
+
+import pygame,random
+green=(0,100,0)
+black=(0,0,0)
+red=(255,0,0)
+grey=(69,69,69)
+yellow=(250,253,15)
+blue=(0,0,255)
+pygame.init()
+window_width,window_height=500,500
+screen=pygame.display.set_mode((window_width,window_height))
+class Snake:
+    def __init__(self, x, y):
+        self.size = 1
+        self.elements = [[x, y]]  
+        self.radius = 10
+        self.dx = 5 
+        self.dy = 0
+        self.add_size = False
+        self.add_sizeBIG=False
+        self.add_sizeTime=False
+        self.speed = 25
+        self.score=0
+        self.level=1
+        self.running=True
+        self.font= pygame.font.SysFont("comicsansms", 20)
+    def draw(self):
+        for element in self.elements:
+            pygame.draw.circle(screen, (black), element, self.radius)
+    def add_to_snake(self):
+        if self.add_sizeBIG==True:
+            self.size+=3
+            self.elements.append([0,0])
+            self.elements.append([0,0])
+            self.elements.append([0,0])
+            self.add_sizeBIG=False
+        elif self.add_sizeTime==True:
+            self.size+=5
+            self.elements.append([0,0])
+            self.elements.append([0,0])
+            self.elements.append([0,0])
+            self.elements.append([0,0])
+            self.elements.append([0,0])
+            self.add_sizeTime=False
+        else:
+            self.size+=1
+            self.elements.append([0, 0])
+        self.add_size = False
+    def message1(self):
+        text1 = self.font.render("Current level: "+str(self.level), True,black)
+        return text1
+    def message2(self):
+        text2 = self.font.render("Current score: "+str(self.score), True,black)
+        return text2
+    def message3(self):
+        text3 = self.font.render("Current speed: "+str(self.speed), True,black)
+        return text3
+    def move(self):
+        if self.add_size:
+            self.add_to_snake()
+        for i in range(self.size - 1, 0, -1):
+            self.elements[i][0] = self.elements[i - 1][0]
+            self.elements[i][1] = self.elements[i - 1][1]
+        self.elements[0][0] += self.dx
+        self.elements[0][1]+= self.dy
+        if self.elements[0][0] > window_width: 
+            self.elements[0][0]=0 
+        elif self.elements[0][0]<0: 
+            self.elements[0][0]=window_width
+        if self.elements[0][1] >window_height: 
+            self.elements[0][1] =0
+        elif self.elements[0][1]<0: 
+            self.elements[0][1]=window_height
+    def collision_check(self):
+        if snake.level>=2:
+            if self.elements[0][0]>=300 and self.elements[0][0]<=340 and self.elements[0][1]>=0 and self.elements[0][1]<=150:
+                self.running=False
+            elif self.elements[0][0]>=150 and self.elements[0][0]<=200 and self.elements[0][1]>=300 and self.elements[0][1]<=window_height:
+                self.running=False
+            return self.running
+        else:
+            return self.running
+    def eat(self, foodx1, foody1): #for regular red food
+        if foodx1 <= self.elements[0][0] <= foodx1 + 10 and foody1 <= self.elements[0][1] <= foody1 + 10:
+            self.score+=1
+            if self.score % 10 == 0:
+                self.speed += 5
+                self.level+=1
+            return True
+        return False 
+    def eatBIG(self,bfoodx,bfoody): #for yellow food which just as red but weights 3 points
+        if bfoodx <= self.elements[0][0] <= bfoodx + 15 and bfoody <= self.elements[0][1] <= bfoody + 15:
+            self.score+=3
+            if self.score % 10 == 0:
+                self.speed += 5
+                self.level+=1
+            return True
+        return False
+    def eatTime(self,tfoodx,tfoody): #for blue food that dissapears every 5 seconds
+        if tfoodx <= self.elements[0][0] <= tfoodx + 20 and tfoody <= self.elements[0][1] <= tfoody + 20:
+            self.score+=5 #it weights 5 points
+            if self.score % 10 == 0:
+                self.speed += 5
+                self.level+=1
+            return True
+        return False
+    def walls(self):
+        if self.level>=2:
+            return True
+class Food:
+    def __init__(self):
+        self.x = random.randint(1, window_width)
+        self.y = random.randint(1, window_height)
+
+    def gen(self):
+        self.x = random.randint(1, window_width)
+        self.y = random.randint(1, window_height)
+        if snake.level>=2:
+            if self.x>=300 and self.x<=340:
+                self.y=random.randint(151,window_height)
+            elif self.x>=150 and self.x<=200:
+                self.y=random.randint(1,300)
+    def draw(self):
+        pygame.draw.rect(screen, red, (self.x, self.y, 10, 10))
+class BFood:
+    def __init__(self):
+        self.x = random.randint(1, window_width)
+        self.y = random.randint(1, window_height)
+
+    def gen(self):
+        self.x = random.randint(1, window_width)
+        self.y = random.randint(1, window_height)
+        if snake.level>=2:
+            if self.x>=300 and self.x<=340:
+                self.y=random.randint(151,window_height)
+            elif self.x>=150 and self.x<=200:
+                self.y=random.randint(1,300)
+    def draw(self):
+        pygame.draw.rect(screen, yellow, (self.x, self.y, 15, 15))
+
+class TFood:
+    def __init__(self):
+        self.x = random.randint(1, window_width)
+        self.y = random.randint(1, window_height)
+
+    def gen(self):
+        self.x = random.randint(1, window_width)
+        self.y = random.randint(1, window_height)
+        if snake.level>=2:
+            if self.x>=260 and self.x<=360:
+                self.y=random.randint(151,window_height)
+            elif self.x>=130 and self.x<=240:
+                self.y=random.randint(1,300)
+    def draw(self):
+        pygame.draw.rect(screen, blue, (self.x, self.y,20,20))
+
+snake = Snake(100, 100) #100,100 is the initial position
+food1 = Food()
+bfood=BFood()
+tfood=TFood()
+
+FPS = 60
+d = 5
+clock = pygame.time.Clock()
+clock.tick(FPS)
+running=True
+
+#coбытие tfood_event повторяется каждые 5000 миллисекунд или 5 секунд
+tfood_event = pygame.USEREVENT + 1 
+pygame.time.set_timer(tfood_event, 5000)
+
+while snake.collision_check() and running:
+    clock.tick(snake.speed)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
+            if event.key == pygame.K_RIGHT and snake.dx != -d:
+                snake.dx = d
+                snake.dy = 0
+            if event.key == pygame.K_LEFT and snake.dx != d:
+                snake.dx = -d
+                snake.dy = 0
+            if event.key == pygame.K_UP and snake.dy != d:
+                snake.dx = 0
+                snake.dy = -d
+            if event.key == pygame.K_DOWN and snake.dy != -d:
+                snake.dx = 0
+                snake.dy = d
+        if event.type==tfood_event:
+            tfood.gen() # каждые 5 секунд создается новая позиция для синей еды
+    if snake.eat(food1.x, food1.y):
+        snake.add_size = True
+        food1.gen()
+    if snake.eatBIG(bfood.x, bfood.y): 
+        snake.add_size = True
+        snake.add_sizeBIG=True #this additional boolean values are for identifying how many circles we need to add to our snake for this particular food
+        bfood.gen()
+    if snake.eatTime(tfood.x,tfood.y):
+        snake.add_size=True
+        snake.add_sizeTime=True
+        tfood.gen()
+    snake.move()
+    screen.fill(green)
+    screen.blit(snake.message1(),(10,10))
+    screen.blit(snake.message2(),(10,30))
+    screen.blit(snake.message3(),(10,50))
+    if(snake.walls()):
+        pygame.draw.rect(screen,grey, pygame.Rect(300,0,40,150))
+#syntax pygame.draw.rect(surface, color, pygame.Rect(leftx,lefty,width,height))
+        pygame.draw.rect(screen,grey,pygame.Rect(150,300,50,200))
+    snake.draw()
+    food1.draw()
+    bfood.draw()
+    tfood.draw()
+    pygame.display.flip()
+pygame.quit()
